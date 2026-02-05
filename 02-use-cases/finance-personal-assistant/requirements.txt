@@ -206,7 +206,7 @@ propcache==0.3.2
     # via
     #   aiohttp
     #   yarl
-protobuf==6.32.0
+protobuf==6.33.5
     # via yfinance
 py-openapi-schema-to-json-schema==0.0.3
     # via bedrock-agentcore-starter-toolkit
