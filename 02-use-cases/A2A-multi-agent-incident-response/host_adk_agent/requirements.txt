@@ -122,7 +122,7 @@ google-auth==2.41.1
     #   google-genai
 google-auth-httplib2==0.2.0
     # via google-api-python-client
-google-cloud-aiplatform==1.121.0
+google-cloud-aiplatform==1.133.0
     # via google-adk
 google-cloud-appengine-logging==1.6.2
     # via google-cloud-logging
