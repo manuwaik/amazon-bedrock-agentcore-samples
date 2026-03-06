@@ -8,7 +8,7 @@
     "deploy": "ampx sandbox --once"
   },
   "dependencies": {
-    "@aws-amplify/backend": "^1.0.4",
+    "@aws-amplify/backend": "^1.19.0",
     "@aws-amplify/backend-cli": "^1.0.4",
     "@types/node": "^20.0.0",
     "aws-cdk": "^2.218.0",
