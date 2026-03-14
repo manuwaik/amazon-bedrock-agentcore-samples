@@ -228,7 +228,7 @@ pydantic-settings==2.10.1
     # via mcp
 pygments==2.19.2
     # via rich
-pyjwt==2.10.1
+pyjwt==2.12.0
     # via strands-agents-tools
 pyparsing==3.2.3
     # via matplotlib
