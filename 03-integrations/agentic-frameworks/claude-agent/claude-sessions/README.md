@@ -94,6 +94,14 @@ The Claude Agent SDK stores conversation history as `.jsonl` files under `~/.cla
 
 4. **Save** ([`agent.py#L70-L88`](agent.py#L70-L88)) — After the response completes, `save_sessions` uploads the contents of `~/.claude/` back to S3. This includes the updated `.jsonl` history and the session ID file.
 
+### Current limitation — single session per user
+
+> **TODO:** Currently, each `user_id` maps to exactly one session. Every invocation with the same `user_id` resumes the same conversation, so all messages share a single history. This means a user cannot have multiple independent conversations — starting a new topic still carries the full context of previous ones.
+>
+> The planned improvement is to support multiple sessions per user by introducing a `session_id` parameter in the invoke payload. The S3 prefix would become `s3://{bucket}/{user_id}/{session_id}/.claude/`, giving each conversation its own isolated history. When `session_id` is omitted, the agent would either resume the most recent session or create a new one, depending on a configurable default.
+>
+> This also needs to account for **AgentCore Runtime session IDs**. The runtime already assigns its own session identifiers for each invocation — the design should consider how the caller-provided `session_id` maps to (or is derived from) the runtime session ID, so that S3 persistence and runtime session tracking stay in sync.
+
 ### Filtering and safety
 
 Not everything under `~/.claude/` should be synced. The agent skips `node_modules/`, cache directories, lock files, and log files (see [`SKIP_PATTERNS`](agent.py#L29)). Individual files larger than 10 MB are also excluded ([`MAX_FILE_SIZE`](agent.py#L26)). During restore, a path-traversal check ([`agent.py#L60-L62`](agent.py#L60-L62)) ensures downloaded keys cannot escape the `~/.claude/` directory.
