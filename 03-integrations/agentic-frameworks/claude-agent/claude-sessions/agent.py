@@ -17,6 +17,7 @@ on the same microVM.
 Flow: clear -> restore from S3 -> resume session -> query -> save to S3
 """
 
+import fnmatch
 import os
 import shutil
 from pathlib import Path
@@ -36,21 +37,17 @@ CLAUDE_HOME = Path.home() / ".claude"
 MAX_FILE_SIZE = 10 * 1024 * 1024  # 10 MB
 MARKER_FILE = Path("/tmp/.last_conversation")
 
-# Files/directories to skip during S3 sync
-SKIP_PATTERNS = ("node_modules/", ".cache/", ".npm/", "*.log", "*.lock")
+# Directories and glob patterns to skip during S3 sync
+SKIP_DIRS = {"node_modules", ".cache", ".npm"}
+SKIP_GLOBS = ("*.log", "*.lock")
+
+s3 = boto3.client("s3")
 
 
 def _should_skip(relative_path: str) -> bool:
-    for pattern in SKIP_PATTERNS:
-        if pattern.endswith("/"):
-            if relative_path.startswith(pattern) or f"/{pattern}" in relative_path:
-                return True
-        elif pattern.startswith("*"):
-            if relative_path.endswith(pattern[1:]):
-                return True
-        elif relative_path == pattern:
-            return True
-    return False
+    if relative_path.split("/")[0] in SKIP_DIRS:
+        return True
+    return any(fnmatch.fnmatch(relative_path, p) for p in SKIP_GLOBS)
 
 
 def _s3_prefix(user_id: str, conversation_id: str) -> str:
@@ -164,7 +161,6 @@ async def invoke(payload):
     user_id = payload["user_id"]
     conversation_id = payload["conversation_id"]
     conversation_key = f"{user_id}/{conversation_id}"
-    s3 = boto3.client("s3")
 
     # Skip restore if this microVM already has the right conversation loaded
     if _read_marker() == conversation_key:
